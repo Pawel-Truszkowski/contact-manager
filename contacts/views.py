@@ -1,12 +1,13 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
+from django.db.models import Q
 
 from .forms import ContactForm
-from django.db.models import Q
 from .models import Contact
 
+
 def contact_list(request):
-    contacts = Contact.objects.all()
+    contacts = Contact.objects.select_related('status').all()
     
     q = request.GET.get('q', '')
     if q:
@@ -18,7 +19,7 @@ def contact_list(request):
             Q(city__icontains=q)
         )
     
-    sort = request.GET.get('sort', '')
+    sort = request.GET.get('sort', '-created_at')
     allowed_sort_fields = ['last_name', '-last_name', 'created_at', '-created_at']
     if sort in allowed_sort_fields:
         contacts = contacts.order_by(sort)
@@ -46,6 +47,7 @@ def contact_edit(request, contact_id):
 
     return render(request, 'contacts/contact_form.html', {'form': form, 'contact': contact})
 
+
 def contact_delete(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
 
@@ -55,3 +57,14 @@ def contact_delete(request, contact_id):
         return redirect('contact_list')
 
     return render(request, 'contacts/contact_confirm_delete.html', {'contact': contact})
+
+def contact_create(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Kontakt został dodany.')
+            return redirect('contact_list')
+    else:
+        form = ContactForm()
+    return render(request, 'contacts/contact_form.html', {'form': form})
