@@ -4,7 +4,7 @@ from django.db.models import Q
 
 from .forms import ContactForm
 from .models import Contact
-
+from .services import get_weather
 
 def contact_list(request):
     contacts = Contact.objects.select_related('status').all()
@@ -24,6 +24,9 @@ def contact_list(request):
     if sort in allowed_sort_fields:
         contacts = contacts.order_by(sort)
     
+    for contact in contacts:
+        contact.weather = get_weather(contact.city)
+        
     context = {
         'contacts': contacts,
         'q': q,

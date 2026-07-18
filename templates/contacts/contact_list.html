@@ -35,6 +35,7 @@
                     <th>E-mail</th>
                     <th>Telefon</th>
                     <th>Miasto</th>
+                    <th>Pogoda(temp, wilgotność, wiatr)</th>
                     <th>Status</th>
                     <th>
                         {% if request.GET.sort == "created_at" %}
@@ -56,6 +57,15 @@
                         <td>{{ contact.email }}</td>
                         <td>{{ contact.phone_number }}</td>
                         <td>{{ contact.city }}</td>
+                        <td>
+                            {% if contact.weather %}
+                                {{ contact.weather.temperature }}°C,
+                                {{ contact.weather.humidity }}%,
+                                {{ contact.weather.wind_speed }} km/h
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
                         <td>{{ contact.status }}</td>
                         <td>{{ contact.created_at|date:"Y-m-d H:i" }}</td>
                         <td>
