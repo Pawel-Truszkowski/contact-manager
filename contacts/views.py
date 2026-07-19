@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from .forms import ContactForm
 from .models import Contact, ContactStatusChoices
-from .services import get_weather
+from .services import get_weather, import_contacts_from_rows
 
 def contact_list(request):
     contacts = Contact.objects.select_related('status').all()
@@ -80,35 +80,21 @@ def contact_import(request):
         if not csv_file:
             messages.error(request, 'Nie wybrano pliku CSV.')
             return redirect('contact_list')
-        
         try:
-            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            decoded = csv_file.read().decode('utf-8').splitlines()
         except UnicodeDecodeError:
-            messages.error(request, 'Niepoprawny format pliku CSV.')
+            messages.error(request, 'Nie udało się odczytać pliku - oczekiwano CSV w UTF-8.')
             return redirect('contact_list')
-        
-        reader = csv.DictReader(decoded_file)
-        
-        counter = 0
-        errors = []
-        for line_number, row in enumerate(reader, start=2):  # Start at 2 because the first line is the header
-            # Translate the CSV row to a dictionary suitable for the ContactForm
-            status_name = row.get('status', '').strip()
-            status = ContactStatusChoices.objects.filter(name__iexact=status_name).first()
-            row['status'] = status.id if status else None
-            
-            form = ContactForm(row)
-            if form.is_valid():
-                form.save()
-                counter += 1
-            else:
-                errors.append(line_number)
-        
-        if counter:
-            messages.success(request, f'Zaimportowano {counter} kontaktów.')
-        if errors:
-            messages.error(request, f'Pominięto {len(errors)} wierszy (nr: {", ".join(map(str, errors))}).')
-        
+
+        imported, error_lines = import_contacts_from_rows(csv.DictReader(decoded))
+
+        if imported:
+            messages.success(request, f'Zaimportowano {imported} kontaktów.')
+        if error_lines:
+            messages.warning(
+                request,
+                f'Pominięto {len(error_lines)} wierszy (nr: {", ".join(map(str, error_lines))}).'
+            )
         return redirect('contact_list')
-    
+
     return render(request, 'contacts/contact_import.html')

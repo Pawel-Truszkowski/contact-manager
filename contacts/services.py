@@ -1,5 +1,7 @@
 import requests
 from django.core.cache import cache
+from .forms import ContactForm
+from .models import ContactStatusChoices
 
 
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
@@ -81,3 +83,25 @@ def get_weather(city):
     
     return weather
     
+
+def import_contacts_from_rows(rows):
+    """Validate and save contacts from an iterable of dict rows.
+    Returns (imported_count, error_line_numbers).
+    """
+    
+    counter = 0
+    errors = []
+    for line_number, row in enumerate(rows, start=2):  # Start at 2 because the first line is the header
+        # Translate the CSV row to a dictionary suitable for the ContactForm
+        status_name = (row.get('status') or '').strip()
+        status = ContactStatusChoices.objects.filter(name__iexact=status_name).first()
+        row['status'] = status.id if status else None
+        
+        form = ContactForm(row)
+        if form.is_valid():
+            form.save()
+            counter += 1
+        else:
+            errors.append(line_number)
+
+    return counter, errors
