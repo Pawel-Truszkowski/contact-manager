@@ -70,7 +70,6 @@ def get_weather(city):
         response.raise_for_status()
         data = response.json()
     except requests.RequestException as e:
-        print(f"DEBUG geo error: {e}")
         return None
     
     weather = {
