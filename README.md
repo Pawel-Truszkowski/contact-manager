@@ -12,9 +12,16 @@ OpenStreetMap Nominatim (geokodowanie) oraz Open-Meteo (dane pogodowe).
     python -m venv venv
     source venv/bin/activate        # Windows: venv\Scripts\activate
     pip install -r requirements.txt
+    echo "SECRET_KEY=$(python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')" > .env
     python manage.py migrate
     python manage.py createsuperuser
     python manage.py runserver
+
+Aplikacja wymaga pliku `.env` w katalogu głównym z ustawioną zmienną
+`SECRET_KEY` (powyższa komenda `echo` generuje ją automatycznie i
+zapisuje do `.env`); bez niej `manage.py` zakończy się błędem
+`ImproperlyConfigured`. Plik `.env` jest w `.gitignore` — nie commituj
+go.
 
 Statusy kontaktów („nowy", „w trakcie", „zagubiony", „nieaktualny")
 tworzone są automatycznie podczas `python manage.py migrate`
@@ -24,7 +31,8 @@ http://127.0.0.1:8000/.
 ## Uruchomienie przez Docker Compose
 
 Wymaga Dockera oraz pliku `.env` z `SECRET_KEY` w katalogu głównym
-projektu (patrz sekcja wyżej).
+projektu — patrz komenda `echo` w sekcji "Instalacja i uruchomienie"
+powyżej.
 
     docker compose up --build
 
