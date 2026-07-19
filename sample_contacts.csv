@@ -1,0 +1,9 @@
+first_name,last_name,email,phone_number,city,status
+Jan,Kowalski,jan.kowalski@example.com,+48 601 234 567,Wrocław,nowy
+Anna,Nowak,anna.nowak@example.com,602345678,Warszawa,w trakcie
+Piotr,Wiśniewski,piotr.wisniewski@example.com,+48603456789,Kraków,nowy
+Maria,Wójcik,maria.wojcik@example.com,604-567-890,Gdańsk,zagubiony
+Tomasz,Kamiński,tomasz.kaminski@example.com,605678901,Poznań,nieaktualny
+Katarzyna,Lewandowska,k.lewandowska@example.com,+48 606 789 012,Szczecin,w trakcie
+Michał,Zieliński,michal.zielinski@example.com,607890123,Łódź,nowy
+Agnieszka,Szymańska,a.szymanska@example.com,608901234,Lublin,nowy

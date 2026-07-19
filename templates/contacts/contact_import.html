@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Importuj kontakty{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Importuj kontakty</h1>
+
+    <div class="mb-4">
+        <form method="post" enctype="multipart/form-data" class="col-md-6">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="csv_file" class="form-label">Wybierz plik CSV</label>
+                <input type="file" name="csv_file" accept=".csv" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Importuj</button>
+            <a href="{% url 'contact_list' %}" class="btn btn-secondary">Anuluj</a>
+        </form>
+    </div>
+{% endblock %}
