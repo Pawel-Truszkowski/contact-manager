@@ -8,7 +8,8 @@ from .services import import_contacts_from_rows
 
 
 def create_status(name="nowy"):
-    return ContactStatusChoices.objects.create(name=name)
+    status, _ = ContactStatusChoices.objects.get_or_create(name=name)
+    return status
 
 
 def contact_data(**overrides):
@@ -35,6 +36,14 @@ class ContactModelTests(TestCase):
             Contact.objects.create(
                 status=self.status,
                 **contact_data(phone_number="609999999"),  # same email, new phone
+            )
+    
+    def test_duplicate_phone_number_is_rejected(self):
+        Contact.objects.create(status=self.status, **contact_data())
+        with self.assertRaises(IntegrityError):
+            Contact.objects.create(
+                status=self.status,
+                **contact_data(email="jan.kowalski@example.com") # same phone, new email
             )
 
 
